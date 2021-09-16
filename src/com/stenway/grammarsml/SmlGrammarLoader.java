@@ -109,7 +109,7 @@ public class SmlGrammarLoader {
 			return new TiString(value, false);
 		} else if (values.tryRead("CiString")) {
 			String value = values.get();
-			return new TiString(value, false);
+			return new TiString(value, true);
 		} else if (values.tryRead("(")) {
 			TiGroup group = new TiGroup();
 			loadTokenGroup(values, group, true);
