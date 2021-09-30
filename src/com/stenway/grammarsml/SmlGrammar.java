@@ -8,6 +8,7 @@ public class SmlGrammar {
 	public Charsets Charsets = new Charsets();
 	public Tokens Tokens = new Tokens();
 	public Rules Rules = new Rules();
+	public TokenCategories TokenCategories = new TokenCategories();
 	public Rule RootRule;
 	
 	public static SmlGrammar parse(String content) throws IOException {

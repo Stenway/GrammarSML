@@ -102,7 +102,6 @@ public class Utils {
 					groups.add(group);
 					getTiGroups(group.Items, groups);
 				}
-				
 			}
 		}
 	}
@@ -129,7 +128,13 @@ public class Utils {
 					groups.add(group);
 					getRiGroups(group.Items, groups);
 				}
-				
+			} else if (item instanceof RiNot) {
+				RiNot not = (RiNot)item;
+				if (not.Item instanceof RiGroup) {
+					RiGroup group = (RiGroup)not.Item;
+					groups.add(group);
+					getRiGroups(group.Items, groups);
+				}
 			}
 		}
 	}

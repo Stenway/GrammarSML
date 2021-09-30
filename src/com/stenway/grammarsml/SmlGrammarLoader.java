@@ -55,6 +55,10 @@ public class SmlGrammarLoader {
 				item = new CiRange(fromChar, toChar);
 			} else if (values.tryRead("Any")) {
 				item = new CiAny();
+			} else if (values.tryRead("Letter")) {
+				item = new CiPreset(CiPreset.Letter);
+			} else if (values.tryRead("Digit")) {
+				item = new CiPreset(CiPreset.Digit);
 			} else if (values.tryRead("Category")) {
 				String categoryName = values.get();
 				UnicodeCategory category = Utils.getCategory(categoryName);
@@ -204,6 +208,11 @@ public class SmlGrammarLoader {
 			RiAlternative alternative = new RiAlternative();
 			loadRuleAlternative(values, alternative);
 			return alternative;
+		} else if (values.tryRead("!")) {
+			return new RiRequired();
+		} else if (values.tryRead("Not")) {
+			RuleItem item = loadRuleItem(values);
+			return new RiNot(item);
 		} else if (values.tryReadReference()) {
 			String referencedId = values.LastReference;
 			if (grammar.Tokens.has(referencedId)) {
@@ -275,6 +284,21 @@ public class SmlGrammarLoader {
 		}
 	}
 	
+	private void loadTokenCategories(SmlElement rootElement) {
+		for (SmlElement categoriesElement : rootElement.elements("TokenCategories")) {
+			for (SmlAttribute categoryAttribute : categoriesElement.attributes()) {
+				String id = categoryAttribute.getName();
+				TokenCategory category = new TokenCategory(id);
+				for (String fullTokenId : categoryAttribute.getValues()) {
+					String tokenId = getId(fullTokenId);
+					Token token = grammar.Tokens.get(tokenId);
+					category.Tokens.add(token);
+				}
+				grammar.TokenCategories.add(category);
+			}
+		}
+	}
+	
 	private String getId(String idStr) {
 		if (!idStr.startsWith("<") || !idStr.endsWith(">")) {
 			throw new SmlGrammarException("Invalid id '"+idStr+"'");
@@ -294,6 +318,10 @@ public class SmlGrammarLoader {
 		
 		preloadRules(rootElement);
 		loadRules(rootElement);
+		
+		if (rootElement.hasElement("TokenCategories")) {
+			loadTokenCategories(rootElement);
+		}
 		
 		String rootRuleId = getId(rootElement.getString("RootRule"));
 		grammar.RootRule = grammar.Rules.get(rootRuleId);
